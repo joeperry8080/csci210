@@ -1,36 +1,50 @@
-#include <iostream>
-#include <sqlite3.h>
+#include <iostream> 
+#include <sqlite3.h> 
+
+//g++ -pedantic-errors ./*.cpp -lsqlite3 -o main
+
+using namespace std; 
+
+static int callback(void* data, int argc, char** argv, char** azColName) 
+{ 
+	int i; 
+	fprintf(stderr, "%s: ", (const char*)data); 
+
+	for (i = 0; i < argc; i++) { 
+		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL"); 
+	} 
+
+	printf("\n"); 
+	return 0; 
+} 
 
 
-int main() {
-    sqlite3* db;
-    sqlite3_stmt* stmt;
-    const char* db_filename = "chinook.db";
-    const char* sql_query = "SELECT artistid, name FROM artists;";
+int main(int argc, char** argv) 
+{ 
+	sqlite3* DB; 
+	int exit = 0; 
+	exit = sqlite3_open("chinook.db", &DB); 
+	string data(""); 
 
-    // Open the database
-    if (sqlite3_open(db_filename, &db) != SQLITE_OK) {
-        std::cerr << "Cannot open database: " << sqlite3_errmsg(db) << std::endl;
-        return 1;
-    }
+    //add the database query here
+	string sql("select * from albums alb join artists art on alb.artistid = art.artistid;"); 
+	if (exit) { 
+		std::cerr << "Error open DB " << sqlite3_errmsg(DB) << std::endl; 
+		return (-1); 
+	} 
+	else
+		std::cout << "Opened Database Successfully!" << std::endl; 
 
-    // Prepare the SQL statement
-    if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
-        sqlite3_close(db);
-        return 1;
-    }
+	int rc = sqlite3_exec(DB, sql.c_str(), callback, (void*)data.c_str(), NULL); 
+    
 
-    // Execute the query and loop through the result set
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        int id = sqlite3_column_int(stmt, 0);
-        const unsigned char* name = sqlite3_column_text(stmt, 1);
-        std::cout << "ID: " << id << ", Name: " << name << std::endl;
-    }
+    //error handling so we can get some SQL errors
+	if (rc != SQLITE_OK) 
+		cerr << "Error!  " << sqlite3_str_errcode << endl; 
+	else { 
+		cout << "Operation OK!" << endl; 
+	} 
 
-    // Clean up
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
-
-    return 0;
-}
+	sqlite3_close(DB); 
+	return (0); 
+} 
