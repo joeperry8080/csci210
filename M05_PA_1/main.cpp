@@ -27,7 +27,10 @@ int main(int argc, char** argv)
 	string data(""); 
 
     //add the database query here
-	string sql("select * from albums alb join artists art on alb.artistid = art.artistid;"); 
+	string sql(
+			"select alb.albumid, alb.title, art.artistid "
+			"from albums alb join artists art on alb.artistid = art.artistid;"
+		); 
 	if (exit) { 
 		std::cerr << "Error open DB " << sqlite3_errmsg(DB) << std::endl; 
 		return (-1); 
