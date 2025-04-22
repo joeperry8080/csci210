@@ -1,6 +1,7 @@
 #include <iostream> 
 #include <sqlite3.h> 
 #include <string>
+#include <iomanip>
 
 //g++ -pedantic-errors ./*.cpp -lsqlite3 -o main
 
@@ -21,7 +22,7 @@ int main()
 
 	//Need to add code to open the database.
 	
-	cout << "Welcome to Sakila" << endl;
+	std::cout << "Welcome to Sakila" << std::endl;
 	choice = mainMenu();
 	while (true)
 	{
@@ -30,9 +31,9 @@ int main()
 			case 1: viewRental(mydb); break;
 			case 2: viewCustomer(mydb); break;
 			case -1: return 0;
-			default: cout << "That is not a valid choice." << endl;
+			default: std::cout << "That is not a valid choice." << std::endl;
 		}
-		cout << "\n\n";
+		std::cout << "\n\n";
 		choice = mainMenu();
 	}
 	
@@ -40,10 +41,10 @@ int main()
 
 void printMainMenu()
 {
-	cout << "Please choose an option (enter -1 to quit):  " << endl;
-	cout << "1. View the rentals for a customer" << endl;
-	cout << "2. View Customer Information" << endl;
-	cout << "Enter Choice: ";
+	std::cout << "Please choose an option (enter -1 to quit):  " << std::endl;
+	std::cout << "1. View the rentals for a customer" << std::endl;
+	std::cout << "2. View Customer Information" << std::endl;
+	std::cout << "Enter Choice: ";
 }
 
 int mainMenu()
@@ -51,35 +52,35 @@ int mainMenu()
 	int choice = 0;
 
 	printMainMenu();
-	cin >> choice;
-	while ((!cin || choice < 1 || choice > 3) && choice != -1)
+	std::cin >> choice;
+	while ((!std::cin || choice < 1 || choice > 3) && choice != -1)
 	{
-		if (!cin)
+		if (!std::cin)
 		{
-			cin.clear();
-			cin.ignore(INT_MAX, '\n');
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
 		}
-		cout << "That is not a valid choice." << endl
-			 << endl;
+		std::cout << "That is not a valid choice." << std::endl
+			 << std::endl;
 		printMainMenu();
-		cin >> choice;
+		std::cin >> choice;
 	}
 	return choice;
 }
 
 void viewRental(sqlite3 *db)
 {
-	string query = "SELECT customer_id, first_name, last_name FROM customer ";
+	std::string query = "SELECT customer_id, first_name, last_name FROM customer ";
 	sqlite3_stmt *pRes;
-	string m_strLastError;
-	string query2;
-	string cusID;
-	string cus_fname, cus_lname;
+	std::string m_strLastError;
+	std::string query2;
+	std::string cusID;
+	std::string cus_fname, cus_lname;
 	if (sqlite3_prepare_v2(db, query.c_str(), -1, &pRes, NULL) != SQLITE_OK)
 	{
 		m_strLastError = sqlite3_errmsg(db);
 		sqlite3_finalize(pRes);
-		cout << "There was an error: " << m_strLastError << endl;
+		std::cout << "There was an error: " << m_strLastError << std::endl;
 		return;
 	}
 	else
@@ -87,7 +88,7 @@ void viewRental(sqlite3 *db)
 		int columnCount = sqlite3_column_count(pRes);
 		int i = 0, choice = 0, rowsPerPage, totalRows;
 		sqlite3_stmt *pRes2;
-		cout << left;
+		std::cout << std::left;
 		int res;
 		do
 		{
@@ -97,17 +98,17 @@ void viewRental(sqlite3 *db)
 		} while (res == SQLITE_ROW);
 		totalRows = i - 1;
 		sqlite3_reset(pRes);
-		cout << "There are " << i - 1 << " rows in the result.  How many do you want to see per page?" << endl;
-		cin >> rowsPerPage;
-		while (!cin || rowsPerPage < 0)
+		std::cout << "There are " << i - 1 << " rows in the result.  How many do you want to see per page?" << std::endl;
+		std::cin >> rowsPerPage;
+		while (!std::cin || rowsPerPage < 0)
 		{
-			if (!cin)
+			if (!std::cin)
 			{
-				cin.clear();
-				cin.ignore(INT_MAX, '\n');
+				std::cin.clear();
+				std::cin.ignore(INT_MAX, '\n');
 			}
-			cout << "That is not a valid choice! Try again!" << endl;
-			cout << "There are " << i << " rows in the result.  How many do you want to see per page?" << endl;
+			std::cout << "That is not a valid choice! Try again!" << std::endl;
+			std::cout << "There are " << i << " rows in the result.  How many do you want to see per page?" << std::endl;
 		}
 		if (rowsPerPage > i)
 			rowsPerPage = i;
@@ -116,23 +117,23 @@ void viewRental(sqlite3 *db)
 		while (choice == 0 || choice == -1)
 		{
 			if (i == 0)
-				cout << "Please choose the customer you want to see rentals for (enter 0 to go to the next page):" << endl;
+				std::cout << "Please choose the customer you want to see rentals for (enter 0 to go to the next page):" << std::endl;
 			else if (i + rowsPerPage < totalRows)
-				cout << "Please choose the customer you want to see rentals for (enter 0 to go to the next page or -1 to go to the previous page):" << endl;
+				std::cout << "Please choose the customer you want to see rentals for (enter 0 to go to the next page or -1 to go to the previous page):" << std::endl;
 			else
-				cout << "Please choose the customer you want to see rentals for (enter -1 to go to the previous page):" << endl;
+				std::cout << "Please choose the customer you want to see rentals for (enter -1 to go to the previous page):" << std::endl;
 			printCustomerPage(pRes, rowsPerPage, i);
-			cin >> choice;
+			std::cin >> choice;
 		
-			while (!(cin) || choice < -1 || choice > totalRows)
+			while (!(std::cin) || choice < -1 || choice > totalRows)
 			{
-				if (!cin)
+				if (!std::cin)
 				{
-					cin.clear();
-					cin.ignore(INT_MAX, '\n');
+					std::cin.clear();
+					std::cin.ignore(INT_MAX, '\n');
 				}
-				cout << "That is not a valid choice! Try again!" << endl;
-				cin >> choice;
+				std::cout << "That is not a valid choice! Try again!" << std::endl;
+				std::cin >> choice;
 			}
 			if (choice == 0)
 			{
@@ -176,7 +177,7 @@ void viewRental(sqlite3 *db)
 		{
 			m_strLastError = sqlite3_errmsg(db);
 			sqlite3_finalize(pRes2);
-			cout << "There was an error: " << m_strLastError << endl;
+			std::cout << "There was an error: " << m_strLastError << std::endl;
 			return;
 		}
 		else
@@ -193,17 +194,17 @@ void viewRental(sqlite3 *db)
 			} while (res == SQLITE_ROW);
 			totalRows = i;
 			sqlite3_reset(pRes2);
-			cout << "There are " << i << " rows in the result.  How many do you want to see per page?" << endl;
-			cin >> rowsPerPage;
-			while (!cin || rowsPerPage < 0)
+			std::cout << "There are " << i << " rows in the result.  How many do you want to see per page?" << std::endl;
+			std::cin >> rowsPerPage;
+			while (!std::cin || rowsPerPage < 0)
 			{
-				if (!cin)
+				if (!std::cin)
 				{
-					cin.clear();
-					cin.ignore(INT_MAX, '\n');
+					std::cin.clear();
+					std::cin.ignore(INT_MAX, '\n');
 				}
-				cout << "That is not a valid choice! Try again!" << endl;
-				cout << "There are " << i << " rows in the result.  How many do you want to see per page?" << endl;
+				std::cout << "That is not a valid choice! Try again!" << std::endl;
+				std::cout << "There are " << i << " rows in the result.  How many do you want to see per page?" << std::endl;
 			}
 			if (rowsPerPage > i)
 				rowsPerPage = i;
@@ -212,23 +213,23 @@ void viewRental(sqlite3 *db)
 			while (choice == 0 || choice == -1)
 			{
 				if (i == 0)
-					cout << "Please choose the rental you want to see (enter 0 to go to the next page):" << endl;
+					std::cout << "Please choose the rental you want to see (enter 0 to go to the next page):" << std::endl;
 				else if (i + rowsPerPage < totalRows)
-					cout << "Please choose the rental you want to see (enter 0 to go to the next page or -1 to go to the previous page):" << endl;
+					std::cout << "Please choose the rental you want to see (enter 0 to go to the next page or -1 to go to the previous page):" << std::endl;
 				else
-					cout << "Please choose the rental you want to see (enter -1 to go to the previous page):" << endl;
+					std::cout << "Please choose the rental you want to see (enter -1 to go to the previous page):" << std::endl;
 				printRentalPage(pRes2, rowsPerPage, i);
-				cin >> choice;
+				std::cin >> choice;
 			
-				while (!(cin) || choice < -1 || choice > totalRows)
+				while (!(std::cin) || choice < -1 || choice > totalRows)
 				{
-					if (!cin)
+					if (!std::cin)
 					{
-						cin.clear();
-						cin.ignore(INT_MAX, '\n');
+						std::cin.clear();
+						std::cin.ignore(INT_MAX, '\n');
 					}
-					cout << "That is not a valid choice! Try again!" << endl;
-					cin >> choice;
+					std::cout << "That is not a valid choice! Try again!" << std::endl;
+					std::cin >> choice;
 				}
 				if (choice == 0)
 				{
@@ -255,25 +256,25 @@ void viewRental(sqlite3 *db)
 			for (int i = 0; i < choice; i++)
 				sqlite3_step(pRes2);
 		}
-		string rentalID = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 0));
-		string rentalDate = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 1));
-		string returnDate;
+		std::string rentalID = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 0));
+		std::string rentalDate = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 1));
+		std::string returnDate;
 		if(sqlite3_column_type(pRes2,2) != SQLITE_NULL)
 			returnDate = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 2));
 		else 
 			returnDate = "";
-		string staff = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 3));
-		string filmTitle = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 4));
-		string filmdescription = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 5));
-		string rentalRate = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 6));
+		std::string staff = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 3));
+		std::string filmTitle = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 4));
+		std::string filmdescription = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 5));
+		std::string rentalRate = reinterpret_cast<const char *>(sqlite3_column_text(pRes2, 6));
 		
-		cout << showpoint << fixed << setprecision(2);
-		cout << "Rental Date: " << rentalDate << endl;
-		cout << "Staff: " << staff << endl;
-		cout << "Customer: " << cus_fname << " " << cus_lname << endl;
-		cout << "Film Information:" << endl;
-		cout << filmTitle << " - " << filmdescription << " $" << rentalRate << endl;
-		cout << "Return Date: " << returnDate << endl;
+		std::cout << std::showpoint << std::fixed << std::setprecision(2);
+		std::cout << "Rental Date: " << rentalDate << std::endl;
+		std::cout << "Staff: " << staff << std::endl;
+		std::cout << "Customer: " << cus_fname << " " << cus_lname << std::endl;
+		std::cout << "Film Information:" << std::endl;
+		std::cout << filmTitle << " - " << filmdescription << " $" << rentalRate << std::endl;
+		std::cout << "Return Date: " << returnDate << std::endl;
 		sqlite3_finalize(pRes2);
 	}
 }
@@ -286,14 +287,14 @@ void printCustomerPage(sqlite3_stmt *res, int rowsPerPage, int startNum)
 		stop = sqlite3_step(res);
 		if (stop != SQLITE_ROW)
 			break;
-		cout << i + startNum << ". ";
+		std::cout << i + startNum << ". ";
 		if (sqlite3_column_type(res, 0) != SQLITE_NULL)
-			cout << sqlite3_column_text(res, 0) << " - ";
+			std::cout << sqlite3_column_text(res, 0) << " - ";
 		if (sqlite3_column_type(res, 1) != SQLITE_NULL)
-			cout << sqlite3_column_text(res, 1) << " ";
+			std::cout << sqlite3_column_text(res, 1) << " ";
 		if (sqlite3_column_type(res, 2) != SQLITE_NULL)
-			cout << sqlite3_column_text(res, 2) << " ";
-		cout << endl;
+			std::cout << sqlite3_column_text(res, 2) << " ";
+		std::cout << std::endl;
 		i++;
 
 	} while (i <= rowsPerPage);
@@ -307,12 +308,12 @@ void printRentalPage(sqlite3_stmt *res, int rowsPerPage, int startNum)
 		stop = sqlite3_step(res);
 		if (stop != SQLITE_ROW)
 			break;
-		cout << i + startNum << ". ";
+		std::cout << i + startNum << ". ";
 		if (sqlite3_column_type(res, 0) != SQLITE_NULL)
-			cout << sqlite3_column_text(res, 0) << " - ";
+			std::cout << sqlite3_column_text(res, 0) << " - ";
 		if (sqlite3_column_type(res, 1) != SQLITE_NULL)
-			cout << sqlite3_column_text(res, 1) << " ";
-		cout << endl;
+			std::cout << sqlite3_column_text(res, 1) << " ";
+		std::cout << std::endl;
 		i++;
 
 	} while (i <= rowsPerPage);
