@@ -1,71 +1,77 @@
-#include <iostream> 
-#include <sqlite3.h> 
+#include <iostream>
+#include <vector>
 #include <string>
+#include <limits>
+#include <algorithm>
+#include <sqlite3.h>
 #include <iomanip>
 
-//g++ -pedantic-errors ./*.cpp -lsqlite3 -o main
+using std::cin;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
 
-void printMainMenu();
+/*
+For some reason vscode won't debug the script on some PC's, so we need to run the below in a terminal.
+
+g++ -pedantic-errors ./*.cpp -lsqlite3 -o main
+
+*/
+//void printMainMenu();
 void viewRental(sqlite3 *);
 void viewCustomer(sqlite3 *);
 int mainMenu();
 void printCustomerPage(sqlite3_stmt *, int, int);
 void printRentalPage(sqlite3_stmt *, int, int);
 	
-int main()
-{
-	int choice;
-
-	sqlite3 *mydb;
-
-	int rc; 
-
-	//Need to add code to open the database.
-	
-	std::cout << "Welcome to Sakila" << std::endl;
-	choice = mainMenu();
-	while (true)
-	{
-		switch (choice) 
-		{
-			case 1: viewRental(mydb); break;
-			case 2: viewCustomer(mydb); break;
-			case -1: return 0;
-			default: std::cout << "That is not a valid choice." << std::endl;
+ // Helper function to repeatedly prompt the user for an integer.
+ int promptForInt(const string& prompt) {
+	int value;
+	while (true) {
+		if (!prompt.empty()) {
+			cout << prompt;
 		}
-		std::cout << "\n\n";
-		choice = mainMenu();
+		cin >> value;
+		if (cin.fail()) {
+			cin.clear();
+			cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			cout << "Invalid input. Please enter a valid number." << endl;
+		} else {
+			cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			return value;
+		}
 	}
-	
-} 
-
-void printMainMenu()
-{
-	std::cout << "Please choose an option (enter -1 to quit):  " << std::endl;
-	std::cout << "1. View the rentals for a customer" << std::endl;
-	std::cout << "2. View Customer Information" << std::endl;
-	std::cout << "Enter Choice: ";
 }
 
-int mainMenu()
-{
-	int choice = 0;
-
-	printMainMenu();
-	std::cin >> choice;
-	while ((!std::cin || choice < 1 || choice > 3) && choice != -1)
-	{
-		if (!std::cin)
-		{
-			std::cin.clear();
-			std::cin.ignore(INT_MAX, '\n');
-		}
-		std::cout << "That is not a valid choice." << std::endl
-			 << std::endl;
-		printMainMenu();
-		std::cin >> choice;
+int main() {
+	sqlite3* db = nullptr;
+	if (sqlite3_open("sakila.db", &db) != SQLITE_OK) {
+		cout << "Error in connection: unable to open database file: " << sqlite3_errmsg(db) << endl;
+		sqlite3_close(db);
+		return 1;
 	}
-	return choice;
+	cout << "Welcome to Sakila" << endl;
+	
+	int choice;
+	do {
+		cout << "\nPlease choose an option (enter -1 to quit):" << endl;
+		cout << "1. View the rentals for a customer" << endl;
+		cout << "2. View Customer Information" << endl;
+		cout << "Enter Choice: ";
+		choice = promptForInt("");
+		if (choice == 1) {
+			viewRental(db);
+		} else if (choice == 2) {
+			viewCustomer(db);
+		} else if (choice != -1) {
+			cout << "Invalid option. Please choose a valid menu option." << endl;
+		}
+	} while (choice != -1);
+	
+	sqlite3_close(db);
+	cout << "Database closed. Exiting program." << endl;
+	return 0;
 }
 
 void viewRental(sqlite3 *db)
@@ -319,9 +325,10 @@ void printRentalPage(sqlite3_stmt *res, int rowsPerPage, int startNum)
 	} while (i <= rowsPerPage);
 }
 
-/*void viewCustomer(sqlite3 *db)
-{ this is where your code goes.
+void viewCustomer(sqlite3 *db)
+{
+	std::cout << "test";
 }
-*/
+
 
 	

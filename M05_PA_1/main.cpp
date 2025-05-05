@@ -1,7 +1,12 @@
 #include <iostream> 
 #include <sqlite3.h> 
 
-//g++ -pedantic-errors ./*.cpp -lsqlite3 -o main
+/*
+For some reason vscode won't debug the script on some PC's, so we need to run the below in a terminal.
+
+g++ -pedantic-errors ./*.cpp -lsqlite3 -o main
+
+*/
 
 using namespace std; 
 
